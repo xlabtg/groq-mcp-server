@@ -547,7 +547,7 @@ def list_batches() -> TextContent:
 
 
 @mcp.tool(
-    description="""Use Groq's Compound-Beta API for advanced AI tasks involving web search and code execution.
+    description="""Use Groq's Compound API for advanced AI tasks involving web search and code execution.
     This tool is specifically designed for tasks that require real-time information lookup or code manipulation.
     It can autonomously:
     1. Search the web for current information
@@ -555,27 +555,26 @@ def list_batches() -> TextContent:
     3. Combine multiple tools to solve complex problems
 
     FOR ANY COMPLEX TASK, USE THIS TOOL. INCLUDING: WEB SEARCH, CODE EXECUTION, INTERNET SEARCH LIKE BITCOIN PRICES OR WEATHER LOOKUPS.
-    
+
     ⚠️ COST WARNING: This tool makes API calls to Groq which may incur costs. Only use when explicitly requested by the user.
-    
-    The tool supports three models:
-    - compound-beta-mini: Fastest, limited to one tool use (default)
-    - compound-beta: Balanced performance with multiple tool uses
-    - compound-beta-deep: Most thorough analysis with extensive tool use
-    
+
+    The tool supports two models:
+    - groq/compound-mini: Fastest, limited to one tool use, ~3x lower latency (default)
+    - groq/compound: Full-featured with up to 10 tool uses for complex multi-step tasks
+
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
         model: The compound model to use
         output_directory: Directory to save output (if save_to_file is True)
         save_to_file: Whether to save the response to a file
-        
+
     Returns:
         Text content with the AI response, including any tool executions performed
     """
 )
 def compound_tool(
     messages: List[Dict[str, str]],
-    model: str = "compound-beta-mini",
+    model: str = "groq/compound-mini",
     output_directory: Optional[str] = None,
     save_to_file: bool = False,  # Default to False since we want to return content to client
 ) -> TextContent:
