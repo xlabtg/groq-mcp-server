@@ -72,7 +72,6 @@ groq_client = httpx.Client(
 mcp = FastMCP("groq-mcp")
 
 
-
 # TTS wrapper with MCP decoration
 @mcp.tool(
     description="""Convert text to speech using Groq's Orpheus TTS model and save the output audio file to a given directory.
@@ -227,7 +226,7 @@ def list_stt_models() -> TextContent:
         ctx: (optional) MCP Context for resource access and progress reporting
         return_image: If True, return the image as a FastMCP Image object (default False)
     Returns:
-        Text content with the direct image description, or FastMCP Image if return_image is True, or path to output file if save_to_file is True
+        Text content with the direct image description.
     """
 )
 def analyze_image(
@@ -240,11 +239,10 @@ def analyze_image(
     save_to_file: bool = False,
     ctx: Context = None,
     return_image: bool = False,
-) -> Union[TextContent, Image]:
+) -> TextContent:  # Fixed: Image not supported by MCP Pydantic schema
     """
     Supports file paths, client-uploaded images/resources via ctx.read_resource(),
     base64-encoded image data, and raw image buffers.
-    If return_image is True, returns a FastMCP Image object (for downstream use).
     """
     import os
     # Skip validation for base64 data since we now handle it in _prepare_image_content
@@ -273,9 +271,10 @@ def analyze_image(
         output_directory=output_directory,
         save_to_file=save_to_file
     )
-    if return_image and img_data is not None:
-        return Image(data=img_data, format=mime_type.split("/")[-1] if mime_type else "png")
-    return result
+    # MCP does not support returning Image directly via Pydantic schema
+    # if return_image and img_data is not None:
+    #     return Image(data=img_data, format=mime_type.split("/")[-1] if mime_type else "png")
+    return result  # Always return TextContent
 
 @mcp.tool(
     description="""Analyze an image using Groq's vision API with either Scout (default) or Maverick model and generate a structured JSON response.
@@ -293,7 +292,7 @@ def analyze_image(
         ctx: (optional) MCP Context for resource access and progress reporting
         return_image: If True, return the image as a FastMCP Image object (default False)
     Returns:
-        Text content with the direct JSON response, or FastMCP Image if return_image is True, or path to output file if save_to_file is True
+        Text content with the direct JSON response.
     """
 )
 def analyze_image_json(
@@ -306,11 +305,10 @@ def analyze_image_json(
     save_to_file: bool = False,
     ctx: Context = None,
     return_image: bool = False,
-) -> Union[TextContent, Image]:
+) -> TextContent:  # Fixed: Image not supported by MCP Pydantic schema
     """
     Supports file paths, client-uploaded images/resources via ctx.read_resource(),
     base64-encoded image data, and raw image buffers.
-    If return_image is True, returns a FastMCP Image object (for downstream use).
     """
     import os
     # Skip validation for base64 data since we now handle it in _prepare_image_content
@@ -339,9 +337,10 @@ def analyze_image_json(
         output_directory=output_directory,
         save_to_file=save_to_file
     )
-    if return_image and img_data is not None:
-        return Image(data=img_data, format=mime_type.split("/")[-1] if mime_type else "png")
-    return result
+    # MCP does not support returning Image directly via Pydantic schema
+    # if return_image and img_data is not None:
+    #     return Image(data=img_data, format=mime_type.split("/")[-1] if mime_type else "png")
+    return result  # Always return TextContent
 
 @mcp.tool(
     description="""Generate a chat completion using Groq's API.
@@ -576,19 +575,19 @@ def compound_tool(
     messages: List[Dict[str, str]],
     model: str = "groq/compound-mini",
     output_directory: Optional[str] = None,
-    save_to_file: bool = False,  # Default to False since we want to return content to client
+    save_to_file: bool = False,
 ) -> TextContent:
     return core_compound_chat(
         messages=messages,
         model=model,
-        stream=False,  # Always use non-streaming mode
+        stream=False,
         output_directory=output_directory,
         save_to_file=save_to_file
     )
 
 
 def main():
-    print("Starting Groq TTS server")
+    print("Starting Groq MCP server")
     mcp.run()
 
 if __name__ == "__main__":
