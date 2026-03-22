@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Groq Compound-Beta script
+# Groq Compound script
 # Usage: ./groq_compound.sh "Your message" [model] [stream] [output_directory]
-# Example: ./scripts/groq_compound.sh "What is Groq's Compound Beta?" compound-beta true
-# Example: ./scripts/groq_compound.sh "Please retrieve the current Bitcoin price from CoinGecko API and calculate the value of 0.38474 bitcoins.?" compound-beta-deep
+# Example: ./scripts/groq_compound.sh "What is Groq's Compound?" groq/compound true
+# Example: ./scripts/groq_compound.sh "Please retrieve the current Bitcoin price from CoinGecko API and calculate the value of 0.38474 bitcoins.?" groq/compound
 
 
 # Check if Python is installed
@@ -38,7 +38,7 @@ if [ -z "$1" ]; then
 fi
 
 MESSAGE="$1"
-MODEL="${2:-compound-beta}"  # Default model is compound-beta
+MODEL="${2:-groq/compound-mini}"  # Default model is groq/compound-mini
 STREAM="${3:-false}"        # Default stream is false
 OUTPUT_DIR="${4:-}"         # Optional output directory
 

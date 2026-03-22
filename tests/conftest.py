@@ -20,10 +20,11 @@ def mock_groq_api_key(monkeypatch):
 def mock_httpx_client(monkeypatch):
     """Mock httpx client for non-integration tests"""
     class MockResponse:
-        def __init__(self, status_code=200, json_data=None, text=""):
+        def __init__(self, status_code=200, json_data=None, text="", content=b""):
             self.status_code = status_code
             self._json_data = json_data or {}
             self._text = text
+            self.content = content
 
         def json(self):
             return self._json_data
@@ -36,24 +37,33 @@ def mock_httpx_client(monkeypatch):
             if self.status_code != 200:
                 raise httpx.HTTPStatusError("Error", request=None, response=self)
 
-    def mock_post(*args, **kwargs):
+    def mock_post(self_or_url, url_or_none=None, *args, **kwargs):
+        # Handle both httpx.post(url, ...) and client.post(path, ...) signatures
+        url = self_or_url if url_or_none is None else url_or_none
+
+        # Mock TTS response
+        if "audio/speech" in str(url):
+            return MockResponse(
+                status_code=200,
+                content=b"RIFF\x00\x00\x00\x00WAVEfmt "  # minimal WAV header mock
+            )
         # Mock STT response
-        if "audio/transcriptions" in args[0]:
+        elif "audio/transcriptions" in str(url):
             return MockResponse(
                 json_data={
                     "text": "This is a mock transcription."
                 }
             )
         # Mock translation response
-        elif "audio/translations" in args[0]:
+        elif "audio/translations" in str(url):
             return MockResponse(
                 json_data={"text": "This is a test translation"},
                 text="This is a test translation"
             )
         # Mock chat completion response (including vision)
-        elif "chat/completions" in args[0]:
+        elif "chat/completions" in str(url):
             # Check if this is a vision request
-            if any(msg.get("content", [{}])[0].get("type") == "image_url" 
+            if any(msg.get("content", [{}])[0].get("type") == "image_url"
                   for msg in kwargs.get("json", {}).get("messages", [])):
                 # Check if JSON response is requested
                 if kwargs.get("json", {}).get("response_format", {}).get("type") == "json_object":
@@ -105,7 +115,8 @@ def mock_httpx_client(monkeypatch):
             )
         return MockResponse(status_code=404)
 
-    monkeypatch.setattr(httpx, "post", mock_post)
+    monkeypatch.setattr(httpx, "post", lambda url, *args, **kwargs: mock_post(url, None, *args, **kwargs))
+    monkeypatch.setattr(httpx.Client, "post", mock_post)
 
 @pytest.fixture
 def sample_audio_file(temp_dir):

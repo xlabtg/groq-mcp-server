@@ -1,5 +1,5 @@
 """
-Groq Compound-Beta Module
+Groq Compound Module
 
 ⚠️ IMPORTANT: This module provides access to Groq API endpoints which may incur costs.
 Each function that makes an API call is marked with a cost warning.
@@ -39,9 +39,8 @@ groq_client = httpx.Client(
 
 # Define available models
 COMPOUND_MODELS = [
-    "compound-beta",  # Default system using deepseek-r1-distill-llama-70b
-    "compound-beta-mini",  # Mini version limited to one tool use
-    "compound-beta-deep",  # Uses qwen-2.5-32b for core reasoning
+    "groq/compound",  # Full-featured system with up to 10 tool calls per request
+    "groq/compound-mini",  # Streamlined system with up to 1 tool call and ~3x lower latency
 ]
 
 def handle_stream_line(line: str, full_content: str, executed_tools: list, current_tool: Optional[dict]) -> tuple[str, list, Optional[dict]]:
@@ -89,21 +88,21 @@ def handle_stream_line(line: str, full_content: str, executed_tools: list, curre
 
 def compound_chat(
     messages: List[Dict[str, str]],
-    model: str = "compound-beta",
+    model: str = "groq/compound",
     stream: bool = False,
     output_directory: Optional[str] = None,
     save_to_file: bool = True,
 ) -> TextContent:
     """
-    Send a chat request to Groq's Compound-Beta API.
-    
+    Send a chat request to Groq's Compound API.
+
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
-        model: The compound model to use (compound-beta, compound-beta-mini, or compound-beta-deep)
+        model: The compound model to use (groq/compound or groq/compound-mini)
         stream: Whether to stream the response
         output_directory: Optional directory to save output files
         save_to_file: Whether to save the response to a file
-        
+
     Returns:
         TextContent object containing the response
     """
@@ -270,19 +269,19 @@ def compound_chat(
 
 def compound_chat_stream(
     messages: List[Dict[str, str]],
-    model: str = "compound-beta",
+    model: str = "groq/compound",
     output_directory: Optional[str] = None,
     save_to_file: bool = True,
 ) -> TextContent:
     """
-    Send a streaming chat request to Groq's Compound-Beta API.
-    
+    Send a streaming chat request to Groq's Compound API.
+
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
-        model: The compound model to use (compound-beta, compound-beta-mini, or compound-beta-deep)
+        model: The compound model to use (groq/compound or groq/compound-mini)
         output_directory: Optional directory to save output files
         save_to_file: Whether to save the response to a file
-        
+
     Returns:
         TextContent object containing the response
     """

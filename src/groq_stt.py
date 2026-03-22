@@ -41,8 +41,7 @@ groq_client = httpx.Client(
 # Define available models
 STT_MODELS = [
     "whisper-large-v3-turbo",  # Fast, multilingual transcription tasks
-    "distil-whisper-large-v3-en",  # Fast, English-only
-    "whisper-large-v3",  # High accuracy, multilingual
+    "whisper-large-v3",  # High accuracy, multilingual, also supports translation
 ]
 
 def transcribe_audio(
@@ -221,15 +220,6 @@ def list_stt_models() -> TextContent:
             "translation": "No",
             "speed_factor": "216",
             "word_error_rate": "12%"
-        },
-        "distil-whisper-large-v3-en": {
-            "description": "A distilled version of Whisper, designed for faster, lower cost English speech recognition.",
-            "cost_per_hour": "$0.02",
-            "languages": "English only",
-            "transcription": "Yes",
-            "translation": "No",
-            "speed_factor": "250",
-            "word_error_rate": "13%"
         },
         "whisper-large-v3": {
             "description": "Provides state-of-the-art performance with high accuracy for multilingual transcription and translation tasks.",

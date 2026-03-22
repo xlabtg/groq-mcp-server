@@ -75,15 +75,15 @@ mcp = FastMCP("groq-mcp")
 
 # TTS wrapper with MCP decoration
 @mcp.tool(
-    description="""Convert text to speech using Groq's TTS model and save the output audio file to a given directory.
+    description="""Convert text to speech using Groq's Orpheus TTS model and save the output audio file to a given directory.
     Directory is optional, if not provided, the output file will be saved to $HOME/Desktop.
-    
+
     ⚠️ COST WARNING: This tool makes an API call to Groq which may incur costs. Only use when explicitly requested by the user.
 
     Args:
-        text: The text to convert to speech (maximum 10,000 characters)
-        voice: The voice to use for the audio generation
-        model: The TTS model to use ("playai-tts" for English, "playai-tts-arabic" for Arabic)
+        text: The text to convert to speech (maximum 200 characters). The English model supports vocal directions in brackets, e.g. [cheerful], [whisper].
+        voice: The voice to use for the audio generation (English: Autumn, Diana, Hannah, Austin, Daniel, Troy; Arabic: Fahad, Sultan, Lulwa, Noura)
+        model: The TTS model to use ("canopylabs/orpheus-v1-english" for English, "canopylabs/orpheus-arabic-saudi" for Arabic)
         output_directory: Directory where files should be saved (defaults to $HOME/Desktop if not provided)
 
     Returns:
@@ -92,8 +92,8 @@ mcp = FastMCP("groq-mcp")
 )
 def text_to_speech(
     text: str,
-    voice: str = "Arista-PlayAI",
-    model: Literal["playai-tts", "playai-tts-arabic"] = "playai-tts",
+    voice: str = "Autumn",
+    model: Literal["canopylabs/orpheus-v1-english", "canopylabs/orpheus-arabic-saudi"] = "canopylabs/orpheus-v1-english",
     output_directory: str | None = None,
 ) -> TextContent:
     # Call the core function from the imported module
@@ -103,17 +103,17 @@ def text_to_speech(
 
 # Voice listing wrapper with MCP decoration
 @mcp.tool(
-    description="""List all available voices for Groq's TTS models.
-    
+    description="""List all available voices for Groq's Orpheus TTS models.
+
     Args:
-        model: Specify which model's voices to list ("playai-tts" for English, "playai-tts-arabic" for Arabic, or "all" for both)
-        
+        model: Specify which model's voices to list ("canopylabs/orpheus-v1-english" for English, "canopylabs/orpheus-arabic-saudi" for Arabic, or "all" for both)
+
     Returns:
         Text content with the list of available voices.
     """
 )
 def list_voices(
-    model: Literal["playai-tts", "playai-tts-arabic", "all"] = "all"
+    model: Literal["canopylabs/orpheus-v1-english", "canopylabs/orpheus-arabic-saudi", "all"] = "all"
 ) -> TextContent:
     # Call the core function from the imported module and return the TextContent object directly
     return run_list_voices(model)
@@ -547,7 +547,7 @@ def list_batches() -> TextContent:
 
 
 @mcp.tool(
-    description="""Use Groq's Compound-Beta API for advanced AI tasks involving web search and code execution.
+    description="""Use Groq's Compound API for advanced AI tasks involving web search and code execution.
     This tool is specifically designed for tasks that require real-time information lookup or code manipulation.
     It can autonomously:
     1. Search the web for current information
@@ -555,27 +555,26 @@ def list_batches() -> TextContent:
     3. Combine multiple tools to solve complex problems
 
     FOR ANY COMPLEX TASK, USE THIS TOOL. INCLUDING: WEB SEARCH, CODE EXECUTION, INTERNET SEARCH LIKE BITCOIN PRICES OR WEATHER LOOKUPS.
-    
+
     ⚠️ COST WARNING: This tool makes API calls to Groq which may incur costs. Only use when explicitly requested by the user.
-    
-    The tool supports three models:
-    - compound-beta-mini: Fastest, limited to one tool use (default)
-    - compound-beta: Balanced performance with multiple tool uses
-    - compound-beta-deep: Most thorough analysis with extensive tool use
-    
+
+    The tool supports two models:
+    - groq/compound-mini: Fastest, limited to one tool use, ~3x lower latency (default)
+    - groq/compound: Full-featured with up to 10 tool uses for complex multi-step tasks
+
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
         model: The compound model to use
         output_directory: Directory to save output (if save_to_file is True)
         save_to_file: Whether to save the response to a file
-        
+
     Returns:
         Text content with the AI response, including any tool executions performed
     """
 )
 def compound_tool(
     messages: List[Dict[str, str]],
-    model: str = "compound-beta-mini",
+    model: str = "groq/compound-mini",
     output_directory: Optional[str] = None,
     save_to_file: bool = False,  # Default to False since we want to return content to client
 ) -> TextContent:
