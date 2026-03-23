@@ -96,9 +96,12 @@ def chat_completion(
     # Validate messages
     if not messages:
         make_error("Messages list cannot be empty")
+    valid_roles = {"system", "user", "assistant"}
     for msg in messages:
         if not isinstance(msg, dict) or 'role' not in msg or 'content' not in msg:
             make_error("Each message must be a dictionary with 'role' and 'content' keys")
+        if msg['role'] not in valid_roles:
+            make_error(f"Invalid role '{msg['role']}'. Must be one of: {', '.join(sorted(valid_roles))}")
     
     # Prepare the request payload
     payload = {

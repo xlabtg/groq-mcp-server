@@ -62,16 +62,24 @@ def mock_httpx_client(monkeypatch):
             )
         # Mock chat completion response (including vision)
         elif "chat/completions" in str(url):
-            # Check if this is a vision request
-            if any(msg.get("content", [{}])[0].get("type") == "image_url"
-                  for msg in kwargs.get("json", {}).get("messages", [])):
+            # Check if this is a vision request (content may be a list with image_url type)
+            def is_vision_request(messages):
+                for msg in messages:
+                    content = msg.get("content", "")
+                    if isinstance(content, list):
+                        for item in content:
+                            if isinstance(item, dict) and item.get("type") == "image_url":
+                                return True
+                return False
+
+            if is_vision_request(kwargs.get("json", {}).get("messages", [])):
                 # Check if JSON response is requested
                 if kwargs.get("json", {}).get("response_format", {}).get("type") == "json_object":
                     return MockResponse(
                         json_data={
                             "choices": [{
                                 "message": {
-                                    "content": {
+                                    "content": json.dumps({
                                         "description": "The image depicts a red square against a black background. The red square is centered in the image and is a solid, bright red color.",
                                         "colors": {
                                             "background": "black",
@@ -81,7 +89,7 @@ def mock_httpx_client(monkeypatch):
                                             "shape": "square",
                                             "position": "centered"
                                         }
-                                    }
+                                    })
                                 }
                             }]
                         }
