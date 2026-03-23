@@ -38,11 +38,11 @@ groq_client = httpx.Client(
 
 # Define available voices for Orpheus models
 ENGLISH_VOICES = [
-    "autumn", "diana", "hannah",
-    "austin", "daniel", "troy"
+    "Autumn", "Diana", "Hannah",
+    "Austin", "Daniel", "Troy"
 ]
 
-ARABIC_VOICES = ["fahad", "sultan", "lulwa", "noura"]
+ARABIC_VOICES = ["Fahad", "Sultan", "Lulwa", "Noura"]
 
 ALL_VOICES = ENGLISH_VOICES + ARABIC_VOICES
 
@@ -58,16 +58,18 @@ def text_to_speech(
     if len(text) > 200:
         make_error("Text length exceeds 200 characters limit.")
 
+    # Normalize voice to title case for case-insensitive matching
+    voice_normalized = voice.strip().title()
+
     # Validate voice selection
-    if voice not in ALL_VOICES:
-        available_voices = ENGLISH_VOICES + ARABIC_VOICES
-        make_error(f"Voice '{voice}' not found. Available voices are: {', '.join(available_voices)}")
+    if voice_normalized not in ALL_VOICES:
+        make_error(f"Voice '{voice}' not found. Available voices are: {', '.join(ALL_VOICES)}")
 
     # Check if Arabic model is selected with English voice or vice versa
-    if model == "canopylabs/orpheus-arabic-saudi" and voice not in ARABIC_VOICES:
+    if model == "canopylabs/orpheus-arabic-saudi" and voice_normalized not in ARABIC_VOICES:
         make_error(f"Voice '{voice}' is not available for Arabic TTS. Available Arabic voices are: {', '.join(ARABIC_VOICES)}")
 
-    if model == "canopylabs/orpheus-v1-english" and voice in ARABIC_VOICES:
+    if model == "canopylabs/orpheus-v1-english" and voice_normalized in ARABIC_VOICES:
         make_error(f"Voice '{voice}' is an Arabic voice. For Arabic voices, use model='canopylabs/orpheus-arabic-saudi'. Available English voices are: {', '.join(ENGLISH_VOICES)}")
 
     output_path = make_output_path(output_directory, base_path)
@@ -79,7 +81,7 @@ def text_to_speech(
         json={
             "model": model,
             "input": text,
-            "voice": voice,
+            "voice": voice_normalized,
             "response_format": "wav"
         },
     )
@@ -96,7 +98,7 @@ def text_to_speech(
 
     return TextContent(
         type="text",
-        text=f"Success. File saved as: {output_file_path}. Voice used: {voice}"
+        text=f"Success. File saved as: {output_file_path}. Voice used: {voice_normalized}"
     )
 
 def list_voices(
