@@ -1,5 +1,6 @@
 import os
 import json
+import pytest
 from pathlib import Path
 from src.groq_batch import process_batch, get_batch_status, get_batch_results
 
@@ -31,6 +32,7 @@ test_requests = [
     }
 ]
 
+@pytest.mark.integration
 def test_array_input():
     """Test batch processing with array input"""
     print("Testing batch processing with array input...")
@@ -38,6 +40,7 @@ def test_array_input():
     print(result.text)
     return result
 
+@pytest.mark.integration
 def test_jsonl_input():
     """Test batch processing with JSONL file input"""
     # Create test JSONL file

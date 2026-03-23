@@ -263,7 +263,7 @@ def analyze_image(
             input_source = image
             
     result = core_analyze_image(
-        input_source=input_source,
+        input_file_path=input_source,
         prompt=prompt,
         model=model,
         temperature=temperature,
@@ -329,7 +329,7 @@ def analyze_image_json(
             input_source = image
             
     result = core_analyze_image_json(
-        input_source=input_source,
+        input_file_path=input_source,
         prompt=prompt,
         model=model,
         temperature=temperature,

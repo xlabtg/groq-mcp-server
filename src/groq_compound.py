@@ -257,7 +257,7 @@ def compound_chat(
                     
     except httpx.HTTPStatusError as e:
         try:
-            error_data = e.json()
+            error_data = e.response.json()
             error_message = error_data.get("error", {}).get("message", f"HTTP Error: {e.response.status_code}")
         except Exception:
             error_message = f"HTTP Error: {e.response.status_code}"

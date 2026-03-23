@@ -122,7 +122,7 @@ def _prepare_image_content(input_source: Union[str, bytes]) -> tuple[str, str]:
         make_error("Invalid input source type for image analysis.")
 
 def analyze_image(
-    input_source: Union[str, bytes],
+    input_file_path: Union[str, bytes],
     prompt: str = "What's in this image?",
     model: Literal["scout", "maverick"] = DEFAULT_MODEL,
     temperature: float = 0.7,
@@ -130,6 +130,7 @@ def analyze_image(
     output_directory: Optional[str] = None,
     save_to_file: bool = True,
 ) -> TextContent:
+    input_source = input_file_path  # support both old and new parameter name
     # Validate prompt
     if not prompt or not prompt.strip():
         make_error("Prompt is required")
@@ -222,7 +223,7 @@ def analyze_image(
         )
 
 def analyze_image_json(
-    input_source: Union[str, bytes],
+    input_file_path: Union[str, bytes],
     prompt: str = "Extract key information from this image as JSON",
     model: Literal["scout", "maverick"] = DEFAULT_MODEL,
     temperature: float = 0.2,
@@ -230,6 +231,7 @@ def analyze_image_json(
     output_directory: Optional[str] = None,
     save_to_file: bool = True,
 ) -> TextContent:
+    input_source = input_file_path  # support both old and new parameter name
     # Validate prompt
     if not prompt or not prompt.strip():
         make_error("Prompt is required")
